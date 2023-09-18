@@ -26,4 +26,4 @@ python manage.py runserver
 ## TODO
 
 - [x] Add Endpoint for Wallpapers
-- [] Add Endpoint for Icon Packs
+- [ ] Add Endpoint for Icon Packs
