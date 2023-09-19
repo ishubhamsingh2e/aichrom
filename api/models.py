@@ -1,3 +1,4 @@
+from django.core.validators import FileExtensionValidator
 from django.db import models
 import uuid
 
@@ -18,7 +19,8 @@ def generate_iconpackname(instance, filename):
 
 class IconPack(models.Model):
     name = models.CharField(max_length=100)
-    icon_pack = models.FileField(upload_to=generate_iconpackname)
+    icon_pack = models.FileField(upload_to=generate_iconpackname,
+                                 validators=[FileExtensionValidator(allowed_extensions=["zip"])])
     tags = models.ManyToManyField('Tag', related_name='icon_packs')
 
     def __str__(self):
