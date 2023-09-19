@@ -10,6 +10,7 @@ install = "*"
 djangorestframework = "*"
 pillow = "*"
 coreapi = "*"
+django-cleanup = "*"
 
 [dev-packages]
 
