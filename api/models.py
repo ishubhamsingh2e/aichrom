@@ -3,22 +3,28 @@ from django.db import models
 import uuid
 
 
-def generate_filename(instance, filename):
+def get_filename(filename):
     # Generate a unique filename using a UUID
     extension = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{extension}"
-    return f"wallpapers/{filename}"
+    _filename = f"{uuid.uuid4()}.{extension}"
+    return _filename
+
+
+def generate_filename(instance, filename):
+    return f"wallpapers/{get_filename(filename)}"
+
+
+def generate_filenameIconPreview(instance, filename):
+    return f"icon-packs/preview/{get_filename(filename)}"
 
 
 def generate_iconpackname(instance, filename):
-    # Generate a unique filename using a UUID
-    extension = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{extension}"
-    return f"icon-packs/{filename}"
+    return f"icon-packs/{get_filename(filename)}"
 
 
 class IconPack(models.Model):
     name = models.CharField(max_length=100)
+    preview = models.ImageField(upload_to=generate_filenameIconPreview)
     icon_pack = models.FileField(upload_to=generate_iconpackname,
                                  validators=[FileExtensionValidator(allowed_extensions=["zip"])])
     tags = models.ManyToManyField('Tag', related_name='icon_packs')
