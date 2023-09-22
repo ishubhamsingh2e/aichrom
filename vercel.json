@@ -3,8 +3,16 @@
     {
       "src": "aichrom/wsgi.py",
       "use": "@vercel/python"
-    }
+    },
+    {
+        "src": "production_build.sh",
+        "use": "@vercel/static-build",
+        "config": {
+          "distDir": "staticfiles_build"
+        }
+      }
   ],
+
   "routes": [
     {
       "src": "/(.*)",
