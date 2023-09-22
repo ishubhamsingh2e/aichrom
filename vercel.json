@@ -1,29 +1,14 @@
 {
-  "version": 2,
   "builds": [
     {
-      "src": "aichrom/wsgi.py",
-      "use": "@vercel/python",
-      "config": {
-          "runtime": "python3.9"
-      }
-    },
-    {
-      "src": "build.sh",
-      "use": "@vercel/static",
-      "config": {
-        "distDir": "staticfiles"
-      }
+      "src": "vercel_app/wsgi.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "staticfiles/static/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "aichrom/wsgi.py"
+      "dest": "vercel_app/wsgi.py"
     }
   ]
 }
