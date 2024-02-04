@@ -140,3 +140,5 @@ GitHub.sublime-settings
 .idea/
 
 staticfiles/
+
+media/

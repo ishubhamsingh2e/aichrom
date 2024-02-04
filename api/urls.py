@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import WallpaperView, IconPackView
+from .views import WallpaperListView, IconPackApiView, SendOTP, VerifyOTP
 
 urlpatterns = [
-    path('wallpapers', WallpaperView.as_view(), name='wallpapers'),
-    path('iconpacks', IconPackView.as_view(), name='icon-packs')
+    path('wallpapers/', WallpaperListView.as_view(), name='wallpapers'),
+    path('iconpacks/', IconPackApiView.as_view(), name='icon-packs'),
+    path("send_otp/", SendOTP.as_view(), name="send-otp"),
+    path("verify_otp/", VerifyOTP.as_view(), name="verify-otp"),
 ]
