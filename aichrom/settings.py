@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-7o1ra6q^@0_3!a+twail%$ny9+bxc+kr+yurh$xbq!-w!j)i14
 DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["https://api.aichrom.org"]
 
 # Application definition
 
@@ -115,7 +115,7 @@ USE_TZ = True
 STATIC_ROOT = BASE_DIR / 'static'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'staticfiles'),
 ]
 
 MEDIA_ROOT = BASE_DIR / 'media'

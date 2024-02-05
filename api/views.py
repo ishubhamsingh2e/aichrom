@@ -33,7 +33,7 @@ class WallpaperListView(View):
 class IconPackApiView(View):
     def get(self, request):
         page = int(request.GET.get('page', 1))
-        items_per_page = 20
+        items_per_page = int(request.GET.get('items', 20))
 
         total_icon_packs = IconPack.objects.count()
         total_pages = (total_icon_packs + items_per_page - 1) // items_per_page
