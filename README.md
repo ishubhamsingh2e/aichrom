@@ -96,7 +96,7 @@ Represents a user in the system.
 ### WallpaperListView
 Returns a JSON response containing a list of wallpapers based on the requested page and items per page.
 
-#### Endpoint: `/wallpapers/`
+#### Endpoint: `/api/wallpapers/`
 - **Method**: `GET`
 - **Parameters**:
   - `page` (optional): Page number for pagination. Default is 1.
@@ -118,12 +118,12 @@ Returns a JSON response containing a list of wallpapers based on the requested p
 ### IconPackApiView
 Handles requests related to icon packs.
 
-#### Endpoint: `/iconpacks/`
+#### Endpoint: `/api/iconpacks/`
 - **Method**: `GET`
 - **Parameters**:
   - `page` (optional): Page number for pagination. Default is 1.
 
-#### Endpoint: `/iconpacks/`
+#### Endpoint: `/api/iconpacks/`
 - **Method**: `POST`
 - **Parameters**:
   - `id`: ID of the requested icon pack.
@@ -145,7 +145,7 @@ Handles requests related to icon packs.
 ### GetPreferenceImage
 Returns the image URL based on user preferences.
 
-#### Endpoint: `/get_preference_image/`
+#### Endpoint: `/api/get_preference_image/`
 - **Method**: `POST`
 - **Parameters**:
   - `color`: User-selected color.
@@ -164,7 +164,7 @@ Returns the image URL based on user preferences.
 ### SendOTP
 Sends or updates OTP to the user's phone number.
 
-#### Endpoint: `/send_otp/`
+#### Endpoint: `/api/send_otp/`
 - **Method**: `POST`
 - **Parameters**:
   - `phone`: User's phone number.
@@ -181,7 +181,7 @@ Sends or updates OTP to the user's phone number.
 ### VerifyOTP
 Verifies the received OTP for the user.
 
-#### Endpoint: `/verify_otp/`
+#### Endpoint: `/api/verify_otp/`
 - **Method**: `POST`
 - **Parameters**:
   - `phone`: User's phone number.
