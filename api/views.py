@@ -102,7 +102,10 @@ class GetPreferenceImage(View):
                 style_2_Code=style_2_code
             )
 
-            return JsonResponse({'success': True, 'image_url': preference.image.url})
+            try : icon_pack = IconPack.objects.get(id=preference.id).icon_pack
+            except: icon_pack = None
+
+            return JsonResponse({'success': True, 'image_url': preference.image.url, 'icon_pack': icon_pack.url})
         except Preference.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Preference not found'})
         except Exception as e:

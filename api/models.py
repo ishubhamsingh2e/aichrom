@@ -66,9 +66,8 @@ class Preference(models.Model):
     male = models.BooleanField()
     style_1_Code = models.CharField(max_length=100)
     style_2_Code = models.CharField(max_length=100)
+    icon_pack = models.ForeignKey(IconPack, on_delete=models.CASCADE, null=True, blank=True)
 
-    def __str__(self):
-        return self.key
     
 class AppUser(models.Model):
     phone = models.CharField(max_length=15, unique=True)
