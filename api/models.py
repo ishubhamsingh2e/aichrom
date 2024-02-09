@@ -21,6 +21,9 @@ def generate_filenameIconPreview(instance, filename):
 def generate_iconpack_image_filename(instance, filename):
     return f"icon-packs/previews/{get_filename(filename)}"
 
+def generate_preferance_image_filename(instance, filename):
+    return f"preference/previews/{get_filename(filename)}"
+
 class IconPack(models.Model):
     name = models.CharField(max_length=100)
     preview = models.ImageField(upload_to=generate_filenameIconPreview)
@@ -64,11 +67,16 @@ class Preference(models.Model):
     image= models.ImageField(upload_to=generate_filename)
     color = models.CharField(max_length=6)
     male = models.BooleanField()
+
     style_1_Code = models.CharField(max_length=100)
+    style_1_Image = models.ImageField(upload_to=generate_preferance_image_filename, null=True, blank=True)
+
     style_2_Code = models.CharField(max_length=100)
+    style_2_Image = models.ImageField(upload_to=generate_preferance_image_filename, null=True, blank=True)
+
     icon_pack = models.ForeignKey(IconPack, on_delete=models.CASCADE, null=True, blank=True)
 
-    
+
 class AppUser(models.Model):
     phone = models.CharField(max_length=15, unique=True)
     otp = models.CharField(max_length=6)

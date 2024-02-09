@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 import random
 from .utils import generate_jwt, verify_jwt
 
+
 class WallpaperListView(View):
     def get(self, request):
         page = int(request.GET.get('page', 1))
@@ -59,7 +60,7 @@ class IconPackApiView(View):
 
             if id is None:
                 return JsonResponse({'error': 'Id is required'}, status=400)
-            
+
             if token is None:
                 return JsonResponse({'error': 'Token is required'}, status=400)
 
@@ -102,8 +103,10 @@ class GetPreferenceImage(View):
                 style_2_Code=style_2_code
             )
 
-            try : icon_pack = IconPack.objects.get(id=preference.id).icon_pack
-            except: icon_pack = None
+            try:
+                icon_pack = IconPack.objects.get(id=preference.id).icon_pack
+            except:
+                icon_pack = None
 
             return JsonResponse({'success': True, 'image_url': preference.image.url, 'icon_pack': icon_pack.url})
         except Preference.DoesNotExist:
@@ -152,3 +155,43 @@ class VerifyOTP(View):
             return JsonResponse({'success': False, 'error': 'User not found'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GetPreferenceSchema(View):
+    def get(self, request):
+        try:
+            style1_male_colors = Preference.objects.filter(male=True).values_list('color', flat=True).distinct()
+            style1_female_colors = Preference.objects.filter(male=False).values_list('color', flat=True).distinct()
+
+            # Query unique style codes for style 1 based on male and female
+            style1_male = Preference.objects.filter(male=True).values('style_1_Code', 'style_1_Image').distinct()
+            style1_female = Preference.objects.filter(male=False).values('style_1_Code', 'style_1_Image').distinct()
+
+            # Query unique style codes for style 2 based on male and female
+            style2_male = Preference.objects.filter(male=True).values('style_2_Code', 'style_1_Image').distinct()
+            style2_female = Preference.objects.filter(male=False).values('style_2_Code', 'style_1_Image').distinct()
+
+            # Combine the results into the desired structure
+            result = {
+                "male": {
+                    "colors": list(style1_male_colors),
+                    "style_1": list(style1_male),
+                    "style_2": list(style2_male)
+                },
+                "female": {
+                    "colors": list(style1_female_colors),
+                    "style_1": list(style1_female),
+                    "style_2": list(style2_female)
+                }
+            }
+
+            return JsonResponse(result, safe=False)
+
+        except OperationalError as e:
+            error_message = f"Database error: {e}"
+            return JsonResponse({"error": error_message}, status=500)
+
+        except Exception as e:
+            error_message = f"An unexpected error occurred: {e}"
+            return JsonResponse({"error": error_message}, status=500)
