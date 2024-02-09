@@ -1,3 +1,4 @@
+from django.db import OperationalError
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views import View
@@ -169,8 +170,8 @@ class GetPreferenceSchema(View):
             style1_female = Preference.objects.filter(male=False).values('style_1_Code', 'style_1_Image').distinct()
 
             # Query unique style codes for style 2 based on male and female
-            style2_male = Preference.objects.filter(male=True).values('style_2_Code', 'style_1_Image').distinct()
-            style2_female = Preference.objects.filter(male=False).values('style_2_Code', 'style_1_Image').distinct()
+            style2_male = Preference.objects.filter(male=True).values('style_2_Code', 'style_2_Image').distinct()
+            style2_female = Preference.objects.filter(male=False).values('style_2_Code', 'style_2_Image').distinct()
 
             # Combine the results into the desired structure
             result = {
