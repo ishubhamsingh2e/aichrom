@@ -8,6 +8,10 @@ from django.views.decorators.csrf import csrf_exempt
 import random
 from .utils import generate_jwt, verify_jwt
 
+import smtplib
+import ssl
+from email.message import EmailMessage
+
 
 class WallpaperListView(View):
     def get(self, request):
@@ -120,33 +124,49 @@ class GetPreferenceImage(View):
 class SendOTP(View):
     def post(self, request):
         try:
-            phone = request.POST.get('phone')
-            user, created = AppUser.objects.get_or_create(phone=phone)
+            email = request.POST.get('email')
+            user, created = AppUser.objects.get_or_create(email=email)
 
             new_otp = random.randint(100000, 999999)
             user.otp = new_otp
             user.updated_at = timezone.now()
             user.save()
 
-            return JsonResponse({'success': True, 'message': 'OTP sent or updated successfully', 'otp': new_otp})
+            self.send_email(email, new_otp)
+
+            return JsonResponse({'success': True, 'message': 'OTP sent or updated successfully'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
+
+    def send_email(self, to_email, otp):
+        em = EmailMessage()
+        em["From"] = "Alerts@anatove.com"
+        em["To"] = to_email
+        em["Subject"] = "OTP for AICHROM"
+        em.set_content(f"otp {otp} for aichrom", subtype='html')
+
+        context = ssl.create_default_context()
+
+        with smtplib.SMTP("smtp.hostinger.com", 587) as smtp:
+            smtp.starttls(context=context)
+            smtp.login("alerts@anatove.com", "fexfaz-xorjoV-1nespe")
+            smtp.send_message(em)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class VerifyOTP(View):
     def post(self, request):
         try:
-            phone = request.POST.get('phone')
+            email = request.POST.get('email')
             otp = request.POST.get('otp')
 
-            user = AppUser.objects.get(phone=phone)
+            user = AppUser.objects.get(email=email)
 
             time_difference = timezone.now() - user.updated_at
 
             if user.otp == otp:
                 if time_difference.total_seconds() <= 300:
-                    token = generate_jwt(phone=phone)
+                    token = generate_jwt(phone=email)
                     return JsonResponse({'success': True, 'token': token})
                 else:
                     return JsonResponse({'success': False, 'error': 'OTP expired'})
@@ -162,16 +182,22 @@ class VerifyOTP(View):
 class GetPreferenceSchema(View):
     def get(self, request):
         try:
-            style1_male_colors = Preference.objects.filter(male=True).values_list('color', flat=True).distinct()
-            style1_female_colors = Preference.objects.filter(male=False).values_list('color', flat=True).distinct()
+            style1_male_colors = Preference.objects.filter(
+                male=True).values_list('color', flat=True).distinct()
+            style1_female_colors = Preference.objects.filter(
+                male=False).values_list('color', flat=True).distinct()
 
             # Query unique style codes for style 1 based on male and female
-            style1_male = Preference.objects.filter(male=True).values('style_1_Code', 'style_1_Image').distinct()
-            style1_female = Preference.objects.filter(male=False).values('style_1_Code', 'style_1_Image').distinct()
+            style1_male = Preference.objects.filter(male=True).values(
+                'style_1_Code', 'style_1_Image').distinct()
+            style1_female = Preference.objects.filter(male=False).values(
+                'style_1_Code', 'style_1_Image').distinct()
 
             # Query unique style codes for style 2 based on male and female
-            style2_male = Preference.objects.filter(male=True).values('style_2_Code', 'style_2_Image').distinct()
-            style2_female = Preference.objects.filter(male=False).values('style_2_Code', 'style_2_Image').distinct()
+            style2_male = Preference.objects.filter(male=True).values(
+                'style_2_Code', 'style_2_Image').distinct()
+            style2_female = Preference.objects.filter(male=False).values(
+                'style_2_Code', 'style_2_Image').distinct()
 
             # Combine the results into the desired structure
             result = {
