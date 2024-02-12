@@ -97,4 +97,4 @@ class AppUser(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.phone
+        return self.email
