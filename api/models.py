@@ -32,6 +32,7 @@ def generate_preferance_image_filename(instance, filename):
 
 
 class IconPack(models.Model):
+    active = models.BooleanField(default=False)
     name = models.CharField(max_length=100)
     preview = models.ImageField(upload_to=generate_filenameIconPreview)
     icon_pack = models.FileField(upload_to=generate_iconpack_image_filename,

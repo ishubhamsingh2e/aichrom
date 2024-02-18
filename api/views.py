@@ -41,13 +41,15 @@ class IconPackApiView(View):
         page = int(request.GET.get('page', 1))
         items_per_page = int(request.GET.get('items', 20))
 
-        total_icon_packs = IconPack.objects.count()
+        icon_packs = IconPack.objects.filter(active=True)
+
+        total_icon_packs = icon_packs.count()
         total_pages = (total_icon_packs + items_per_page - 1) // items_per_page
 
         start_index = (page - 1) * items_per_page
         end_index = start_index + items_per_page
 
-        icon_packs = IconPack.objects.all()[start_index:end_index]
+        icon_packs = icon_packs[start_index:end_index]
 
         data = {
             'total_pages': total_pages,
