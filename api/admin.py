@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import Wallpaper, IconPack, IconPackImage, Preference, AppUser
+from .models import Wallpaper, IconPack, IconPackImage, Preference, AppUser, Style, Color
 
 # Register your models here.
+
 
 class IconPackImageInline(admin.TabularInline):
     model = IconPackImage
@@ -12,6 +13,9 @@ admin.site.register(Wallpaper)
 admin.site.register(IconPackImage)
 admin.site.register(Preference)
 admin.site.register(AppUser)
+admin.site.register(Style)
+admin.site.register(Color)
+
 
 @admin.register(IconPack)
 class IconPackAdmin(admin.ModelAdmin):
