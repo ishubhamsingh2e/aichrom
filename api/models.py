@@ -75,18 +75,38 @@ class Wallpaper(models.Model):
         return self.title
 
 
+class Style(models.Model):
+    name = models.CharField(max_length=100)
+    style_code = models.CharField(max_length=100)
+    image_url = models.ImageField(upload_to=generate_filename)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Color(models.Model):
+    name = models.CharField(max_length=100)
+    color_code = models.CharField(max_length=100)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Preference(models.Model):
-    image = models.ImageField(upload_to=generate_filename)
-    color = models.CharField(max_length=6)
-    male = models.BooleanField()
+    image = models.ImageField(upload_to=generate_filename,)
+    color = models.ForeignKey(
+        Color, on_delete=models.CASCADE, null=True, blank=True)
 
-    style_1_Code = models.CharField(max_length=100)
-    style_1_Image = models.ImageField(
-        upload_to=generate_preferance_image_filename, null=True, blank=True)
+    male = models.BooleanField(default=True)
 
-    style_2_Code = models.CharField(max_length=100)
-    style_2_Image = models.ImageField(
-        upload_to=generate_preferance_image_filename, null=True, blank=True)
+    style_1 = models.ForeignKey(
+        Style, on_delete=models.CASCADE, null=True, blank=True, related_name='preference_style_1')
+    style_2 = models.ForeignKey(
+        Style, on_delete=models.CASCADE, null=True, blank=True, related_name='preference_style_2')
 
     icon_pack = models.ForeignKey(
         IconPack, on_delete=models.CASCADE, null=True, blank=True)
