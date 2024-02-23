@@ -11,7 +11,7 @@ class ColorSerializer(serializers.ModelSerializer):
 class StyleSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Style
-        fields = ('id', 'name', 'style_code')
+        fields = ('id', 'name', 'style_code', 'image_url')
 
 
 class PreferenceSerializer(serializers.ModelSerializer):
