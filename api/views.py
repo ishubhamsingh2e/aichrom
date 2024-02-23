@@ -101,40 +101,52 @@ class IconPackApiView(View):
 class GetPreferenceImage(View):
     def post(self, request):
         try:
-
             color = request.POST.get('color')
-            male = bool(request.POST.get('male'))
+            male = request.POST.get('male')
+
+            if male == "0":
+                male = False
+            elif male == "1":
+                male = True
+            else:
+                male = None
+                return JsonResponse({'success': False, 'error': 'Invalid male value'})
+
             style_1_code = request.POST.get('style_1')
+            style_2_code = request.POST.get('style_2') if male else None
+
+            print(color, male, style_1_code, style_2_code)
+
+            try:
+                color_obj = Color.objects.get(color_code=color)
+                Style_1 = Style.objects.get(style_code=style_1_code)
+
+                if male:
+                    Style_2 = Style.objects.get(style_code=style_2_code)
+            except (Color.DoesNotExist, Style.DoesNotExist) as e:
+                return JsonResponse({'success': False, 'error': str(e)})
+
             if male:
-                style_2_code = request.POST.get('style_2')
-
-            color = Color.objects.get(color_code=color)
-            Style_1 = Style.objects.get(style_code=style_1_code)
-
-            if male:
-                Style_2 = Style.objects.get(style_code=style_2_code)
-
-                preference = Preference.objects.get(
-                    color=color,
+                preference = Preference.objects.filter(
+                    color=color_obj,
                     male=male,
                     style_1=Style_1,
                     style_2=Style_2
-                )
+                ).first()
+            else:
+                preference = Preference.objects.filter(
+                    color=color_obj,
+                    male=male,
+                    style_1=Style_1,
+                ).first()
 
-            preference = Preference.objects.get(
-                color=color,
-                male=male,
-                style_1=Style_1
-            )
+            print(preference)
 
-            try:
-                icon_pack = IconPack.objects.get(id=preference.id).icon_pack
-            except:
-                icon_pack = None
+            if preference is None:
+                return JsonResponse({'success': False, 'error': 'Preference not found'})
 
-            return JsonResponse({'success': True, 'image_url': preference.image.url, 'icon_pack': icon_pack.url})
-        except Preference.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Preference not found'})
+            return JsonResponse({'success': True, 'image_url': preference.image.url, 'icon_pack': preference.icon_pack.icon_pack.url})
+
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
