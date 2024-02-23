@@ -18,7 +18,7 @@ admin.site.register(Color)
 
 @admin.register(Preference)
 class PreferenceAdmin(admin.ModelAdmin):
-    list_display = ('image', 'color', 'male',
+    list_display = ('id', 'image', 'color', 'male',
                     'style_1', 'style_2', 'icon_pack')
 
 
