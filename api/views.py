@@ -1,8 +1,7 @@
-from django.db import OperationalError
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views import View
-from .models import AppUser, IconPack, IconPackImage, Wallpaper, Preference
+from .models import AppUser, IconPack, IconPackImage, Wallpaper, Preference, Color, Style
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import random
@@ -11,6 +10,11 @@ from .utils import generate_jwt, verify_jwt
 import smtplib
 import ssl
 from email.message import EmailMessage
+
+from rest_framework import generics
+from rest_framework.response import Response
+
+from .serializer import ColorSerializer, StyleSerializer
 
 
 class WallpaperListView(View):
@@ -101,13 +105,26 @@ class GetPreferenceImage(View):
             color = request.POST.get('color')
             male = bool(request.POST.get('male'))
             style_1_code = request.POST.get('style_1')
-            style_2_code = request.POST.get('style_2')
+            if male:
+                style_2_code = request.POST.get('style_2')
+
+            color = Color.objects.get(color_code=color)
+            Style_1 = Style.objects.get(style_code=style_1_code)
+
+            if male:
+                Style_2 = Style.objects.get(style_code=style_2_code)
+
+                preference = Preference.objects.get(
+                    color=color,
+                    male=male,
+                    style_1=Style_1,
+                    style_2=Style_2
+                )
 
             preference = Preference.objects.get(
                 color=color,
                 male=male,
-                style_1_Code=style_1_code,
-                style_2_Code=style_2_code
+                style_1=Style_1
             )
 
             try:
@@ -185,46 +202,74 @@ class VerifyOTP(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class GetPreferenceSchema(View):
-    def get(self, request):
-        try:
-            style1_male_colors = Preference.objects.filter(
-                male=True).values_list('color', flat=True).distinct()
-            style1_female_colors = Preference.objects.filter(
-                male=False).values_list('color', flat=True).distinct()
+class GetPreferenceSchema(generics.ListAPIView):
+    def get(self, request, *args, **kwargs):
+        male_colors = Color.objects.filter(preference__male=True).distinct()
+        female_colors = Color.objects.filter(preference__male=False).distinct()
 
-            # Query unique style codes for style 1 based on male and female
-            style1_male = Preference.objects.filter(male=True).values(
-                'style_1_Code', 'style_1_Image').distinct()
-            style1_female = Preference.objects.filter(male=False).values(
-                'style_1_Code', 'style_1_Image').distinct()
+        style1_male = Style.objects.filter(
+            preference_style_1__male=True).distinct()
+        style2_male = Style.objects.filter(
+            preference_style_2__male=True).distinct()
 
-            # Query unique style codes for style 2 based on male and female
-            style2_male = Preference.objects.filter(male=True).values(
-                'style_2_Code', 'style_2_Image').distinct()
-            style2_female = Preference.objects.filter(male=False).values(
-                'style_2_Code', 'style_2_Image').distinct()
+        style1_female = Style.objects.filter(
+            preference_style_1__male=False).distinct()
+        style2_female = Style.objects.filter(
+            preference_style_2__male=False).distinct()
 
-            # Combine the results into the desired structure
-            result = {
-                "male": {
-                    "colors": list(style1_male_colors),
-                    "style_1": list(style1_male),
-                    "style_2": list(style2_male)
-                },
-                "female": {
-                    "colors": list(style1_female_colors),
-                    "style_1": list(style1_female),
-                    "style_2": list(style2_female)
-                }
-            }
+        response_data = {
+            "male": {
+                "colors": ColorSerializer(male_colors, many=True).data,
+                "style_1": StyleSerializer(style1_male, many=True).data,
+                "style_2": StyleSerializer(style2_male, many=True).data,
+            },
+            "female": {
+                "colors": ColorSerializer(female_colors, many=True).data,
+                "style_1": StyleSerializer(style1_female, many=True).data,
+                "style_2": StyleSerializer(style2_female, many=True).data,
+            },
+        }
 
-            return JsonResponse(result, safe=False)
+        return Response(response_data)
 
-        except OperationalError as e:
-            error_message = f"Database error: {e}"
-            return JsonResponse({"error": error_message}, status=500)
+# @method_decorator(csrf_exempt, name='dispatch')
+# class GetPreferenceSchema(View):
+#     def get(self, request):
+#         try:
+#             style1_male_colors = Preference.objects.filter(
+#                 male=True).values_list('color', flat=True).distinct()
+#             style1_female_colors = Preference.objects.filter(
+#                 male=False).values_list('color', flat=True).distinct()
 
-        except Exception as e:
-            error_message = f"An unexpected error occurred: {e}"
-            return JsonResponse({"error": error_message}, status=500)
+#             style1_male = Preference.objects.filter(male=True).values(
+#                 'style_1_Code', 'style_1_Image').distinct()
+#             style1_female = Preference.objects.filter(male=False).values(
+#                 'style_1_Code', 'style_1_Image').distinct()
+
+#             style2_male = Preference.objects.filter(male=True).values(
+#                 'style_2_Code', 'style_2_Image').distinct()
+#             style2_female = Preference.objects.filter(male=False).values(
+#                 'style_2_Code', 'style_2_Image').distinct()
+
+#             result = {
+#                 "male": {
+#                     "colors": list(style1_male_colors),
+#                     "style_1": list(style1_male),
+#                     "style_2": list(style2_male)
+#                 },
+#                 "female": {
+#                     "colors": list(style1_female_colors),
+#                     "style_1": list(style1_female),
+#                     "style_2": list(style2_female)
+#                 }
+#             }
+
+#             return JsonResponse(result, safe=False)
+
+#         except OperationalError as e:
+#             error_message = f"Database error: {e}"
+#             return JsonResponse({"error": error_message}, status=500)
+
+#         except Exception as e:
+#             error_message = f"An unexpected error occurred: {e}"
+#             return JsonResponse({"error": error_message}, status=500)

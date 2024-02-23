@@ -41,10 +41,8 @@ class IconPack(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        # Call the parent class save method
         super().save(*args, **kwargs)
 
-        # Sort and move icon pack images to their respective folder
         icon_pack_folder = os.path.join("media/icon-packs", self.name)
         os.makedirs(icon_pack_folder, exist_ok=True)
 
@@ -77,7 +75,7 @@ class Wallpaper(models.Model):
 
 class Style(models.Model):
     name = models.CharField(max_length=100)
-    style_code = models.CharField(max_length=100)
+    style_code = models.CharField(max_length=100, unique=True)
     image_url = models.ImageField(upload_to=generate_filename)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -110,6 +108,9 @@ class Preference(models.Model):
 
     icon_pack = models.ForeignKey(
         IconPack, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.image.name
 
 
 class AppUser(models.Model):
