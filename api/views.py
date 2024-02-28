@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views import View
-from .models import AppUser, IconPack, IconPackImage, Wallpaper, Preference, Color, Style
+from .models import AppUser, IconPack, IconPackImage, Transaction, Wallpaper, Preference, Color, Style
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import random
@@ -115,8 +115,6 @@ class GetPreferenceImage(View):
             style_1_code = request.POST.get('style_1')
             style_2_code = request.POST.get('style_2') if male else None
 
-            print(color, male, style_1_code, style_2_code)
-
             try:
                 color_obj = Color.objects.get(color_code=color)
                 Style_1 = Style.objects.get(style_code=style_1_code)
@@ -140,8 +138,6 @@ class GetPreferenceImage(View):
                     style_1=Style_1,
                 ).first()
 
-            print(preference)
-
             if preference is None:
                 return JsonResponse({'success': False, 'error': 'Preference not found'})
 
@@ -156,7 +152,15 @@ class SendOTP(View):
     def post(self, request):
         try:
             email = request.POST.get('email')
-            user, created = AppUser.objects.get_or_create(email=email)
+            location = request.POST.get('location')
+
+            if email is None:
+                return JsonResponse({'success': False, 'error': 'Email is required'})
+            if location is None:
+                user, created = AppUser.objects.get_or_create(email=email)
+            else:
+                user, created = AppUser.objects.get_or_create(
+                    email=email, location=location)
 
             new_otp = random.randint(100000, 999999)
             user.otp = new_otp
@@ -244,44 +248,35 @@ class GetPreferenceSchema(generics.ListAPIView):
 
         return Response(response_data)
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class GetPreferenceSchema(View):
-#     def get(self, request):
-#         try:
-#             style1_male_colors = Preference.objects.filter(
-#                 male=True).values_list('color', flat=True).distinct()
-#             style1_female_colors = Preference.objects.filter(
-#                 male=False).values_list('color', flat=True).distinct()
 
-#             style1_male = Preference.objects.filter(male=True).values(
-#                 'style_1_Code', 'style_1_Image').distinct()
-#             style1_female = Preference.objects.filter(male=False).values(
-#                 'style_1_Code', 'style_1_Image').distinct()
+@method_decorator(csrf_exempt, name='dispatch')
+class TransactionSchema(View):
+    def post(self, request):
+        try:
+            token = request.POST.get('token')
+            transaction_id = request.POST.get('transaction_id')
+            sku = request.POST.get('sku')
+            status = request.POST.get('status')
 
-#             style2_male = Preference.objects.filter(male=True).values(
-#                 'style_2_Code', 'style_2_Image').distinct()
-#             style2_female = Preference.objects.filter(male=False).values(
-#                 'style_2_Code', 'style_2_Image').distinct()
+            if token is None:
+                return JsonResponse({'success': False, 'error': 'Token is required'})
 
-#             result = {
-#                 "male": {
-#                     "colors": list(style1_male_colors),
-#                     "style_1": list(style1_male),
-#                     "style_2": list(style2_male)
-#                 },
-#                 "female": {
-#                     "colors": list(style1_female_colors),
-#                     "style_1": list(style1_female),
-#                     "style_2": list(style2_female)
-#                 }
-#             }
+            if verify_jwt(token)[0] is False:
+                return JsonResponse({'success': False, 'error': 'Invalid token'})
 
-#             return JsonResponse(result, safe=False)
+            email = verify_jwt(token)[1]
 
-#         except OperationalError as e:
-#             error_message = f"Database error: {e}"
-#             return JsonResponse({"error": error_message}, status=500)
+            user = AppUser.objects.get(email=email)
 
-#         except Exception as e:
-#             error_message = f"An unexpected error occurred: {e}"
-#             return JsonResponse({"error": error_message}, status=500)
+            if transaction_id != None:
+
+                transaction = Transaction.objects.create(
+                    user=user, transaction_id=transaction_id, sku=sku, status=status)
+
+            else:
+                transaction = Transaction.objects.create(
+                    user=user, sku=sku, status=status)
+
+            return JsonResponse({'success': True, 'message': 'Transaction created successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})

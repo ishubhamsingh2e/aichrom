@@ -1,13 +1,12 @@
 import jwt
 from django.conf import settings
 
+
 def generate_jwt(phone):
     payload = {'phone': phone}
     jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
     return jwt_token
 
-import jwt
-from django.conf import settings
 
 def verify_jwt(token):
     try:
