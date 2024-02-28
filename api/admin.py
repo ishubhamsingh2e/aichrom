@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Wallpaper, IconPack, IconPackImage, Preference, AppUser, Style, Color
+from .models import Wallpaper, IconPack, IconPackImage, Preference, AppUser, Style, Color, Transaction
 
 # Register your models here.
 
@@ -14,6 +14,7 @@ admin.site.register(IconPackImage)
 admin.site.register(AppUser)
 admin.site.register(Style)
 admin.site.register(Color)
+admin.site.register(Transaction)
 
 
 @admin.register(Preference)
