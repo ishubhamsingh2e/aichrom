@@ -14,7 +14,7 @@ from email.message import EmailMessage
 from rest_framework import generics
 from rest_framework.response import Response
 
-from .serializer import ColorSerializer, StyleSerializer
+from .serializer import ColorSerializer, StyleSerializer, TransactionSerializer
 
 
 class WallpaperListView(View):
@@ -257,7 +257,7 @@ class TransactionSchema(View):
             transaction_id = request.POST.get('transaction_id')
             sku = request.POST.get('sku')
             status = request.POST.get('status')
-
+            icon_pack = int(request.POST.get('icon_pack'))
             if token is None:
                 return JsonResponse({'success': False, 'error': 'Token is required'})
 
@@ -269,14 +269,42 @@ class TransactionSchema(View):
             user = AppUser.objects.get(email=email)
 
             if transaction_id != None:
-
+                pack = IconPack.objects.get(id=icon_pack)
                 transaction = Transaction.objects.create(
-                    user=user, transaction_id=transaction_id, sku=sku, status=status)
+                    user=user, transaction_id=transaction_id, sku=sku, status=status, icon_pack=pack)
 
             else:
                 transaction = Transaction.objects.create(
                     user=user, sku=sku, status=status)
 
             return JsonResponse({'success': True, 'message': 'Transaction created successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GetTransaction(View):
+    def post(self, request):
+        try:
+            token = request.POST.get('token')
+
+            if token is None:
+                return JsonResponse({'success': False, 'error': 'Token is required'})
+
+            if verify_jwt(token)[0] is False:
+                return JsonResponse({'success': False, 'error': 'Invalid token'})
+
+            email = verify_jwt(token)[1]
+
+            user = AppUser.objects.get(email=email)
+
+            transactions = Transaction.objects.filter(
+                user=user, status=True).order_by('-created_at')
+
+            data = {
+                'transactions': TransactionSerializer(transactions, many=True).data
+            }
+
+            return JsonResponse(data, safe=False)
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})

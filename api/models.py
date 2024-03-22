@@ -127,6 +127,7 @@ class Transaction(models.Model):
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     transaction_id = models.CharField(max_length=100, null=True, blank=True)
     sku = models.CharField(max_length=100)
+    icon_pack = models.ForeignKey(IconPack, on_delete=models.CASCADE, null=True, blank=True)
     status = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -23,3 +23,22 @@ class PreferenceSerializer(serializers.ModelSerializer):
             'user': {'write_only': True},
         }
         ordering = ('-created_at',)
+
+
+class IconPackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.IconPack
+        fields = '__all__'
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    icon_pack = IconPackSerializer()
+
+    class Meta:
+        model = models.Transaction
+        fields = '__all__'
+        read_only_fields = ('id', 'created_at')
+        extra_kwargs = {
+            'user': {'write_only': True},
+        }
+        ordering = ('-created_at',)
