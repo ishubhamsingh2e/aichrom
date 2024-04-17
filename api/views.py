@@ -16,6 +16,7 @@ from rest_framework.response import Response
 
 from .serializer import ColorSerializer, StyleSerializer, TransactionSerializer
 
+from django.db.models import Case, When, Value, BooleanField
 
 class WallpaperListView(View):
     def get(self, request):
@@ -45,7 +46,20 @@ class IconPackApiView(View):
         page = int(request.GET.get('page', 1))
         items_per_page = int(request.GET.get('items', 20))
 
-        icon_packs = IconPack.objects.filter(active=True)
+        status, phone = verify_jwt(request.META.get('HTTP_TOKEN'))
+        user = AppUser.objects.get(email=phone)
+
+        user_transactions = Transaction.objects.filter(user=user, status=True)
+
+        purchased_icon_pack_ids = user_transactions.values_list('icon_pack_id', flat=True)
+
+        conditional_expression = Case(
+            *[When(id=id, then=Value(True)) for id in purchased_icon_pack_ids],
+            default=Value(False),
+            output_field=BooleanField()
+        )
+
+        icon_packs = IconPack.objects.annotate(purchased=conditional_expression).order_by('-purchased')
 
         total_icon_packs = icon_packs.count()
         total_pages = (total_icon_packs + items_per_page - 1) // items_per_page
@@ -167,7 +181,7 @@ class SendOTP(View):
             user.updated_at = timezone.now()
             user.save()
 
-            if email is not "test@gmail.com":
+            if email != "test@gmail.com":
                 self.send_email(email, new_otp)
 
             return JsonResponse({'success': True, 'message': 'OTP sent or updated successfully'})
