@@ -11,6 +11,7 @@ djangorestframework = "*"
 pillow = "*"
 coreapi = "*"
 django-cleanup = "*"
+pyjwt = "*"
 
 [dev-packages]
 

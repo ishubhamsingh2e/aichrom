@@ -155,7 +155,7 @@ class GetPreferenceImage(View):
             if preference is None:
                 return JsonResponse({'success': False, 'error': 'Preference not found'})
 
-            return JsonResponse({'success': True, 'image_url': preference.image.url, 'icon_pack': preference.icon_pack.icon_pack.url})
+            return JsonResponse({'success': True, 'id' : preference.icon_pack.id, 'image_url': preference.image.url, 'icon_pack': preference.icon_pack.icon_pack.url})
 
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
