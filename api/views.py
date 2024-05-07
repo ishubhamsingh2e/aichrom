@@ -46,12 +46,14 @@ class IconPackApiView(View):
         page = int(request.GET.get('page', 1))
         items_per_page = int(request.GET.get('items', 20))
 
-        status, phone = verify_jwt(request.META.get('HTTP_TOKEN'))
-        user = AppUser.objects.get(email=phone)
-
-        user_transactions = Transaction.objects.filter(user=user, status=True)
-
-        purchased_icon_pack_ids = user_transactions.values_list('icon_pack_id', flat=True)
+        token = request.META.get('HTTP_TOKEN')
+        if token:
+            status, phone = verify_jwt(token)
+            user = AppUser.objects.get(email=phone)
+            user_transactions = Transaction.objects.filter(user=user, status=True)
+            purchased_icon_pack_ids = user_transactions.values_list('icon_pack_id', flat=True)
+        else:
+            purchased_icon_pack_ids = []
 
         conditional_expression = Case(
             *[When(id=id, then=Value(True)) for id in purchased_icon_pack_ids],
