@@ -43,8 +43,14 @@ class TransactionSerializer(serializers.ModelSerializer):
         }
         ordering = ('-created_at',)
 
+class WallpaperSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Wallpaper
+        fields = '__all__'
+
+
 class TransactionWallpaperSerializer(serializers.ModelSerializer):
-    icon_pack = IconPackSerializer()
+    wallpaper = WallpaperSerializer()
 
     class Meta:
         model = models.WallpaperTransaction
