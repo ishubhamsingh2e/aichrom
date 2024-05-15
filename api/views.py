@@ -14,7 +14,7 @@ from email.message import EmailMessage
 from rest_framework import generics
 from rest_framework.response import Response
 
-from .serializer import ColorSerializer, StyleSerializer, TransactionSerializer
+from .serializer import ColorSerializer, StyleSerializer, TransactionSerializer, TransactionWallpaperSerializer
 
 from django.db.models import Case, When, Value, BooleanField
 
@@ -379,7 +379,7 @@ class GetTransactionWallpaper(View):
                 user=user, status=True).order_by('-created_at')
 
             data = {
-                'transactions': TransactionSerializer(transactions, many=True).data
+                'transactions': TransactionWallpaperSerializer(transactions, many=True).data
             }
 
             return JsonResponse(data, safe=False)
