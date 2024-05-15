@@ -9,5 +9,6 @@ urlpatterns = [
     path("send_otp/", SendOTP.as_view(), name="send-otp"),
     path("verify_otp/", VerifyOTP.as_view(), name="verify-otp"),
     path("transaction/", TransactionSchema.as_view(), name="transaction"),
+    path("wallpaper_transaction/", TransactionSchema.as_view(), name="transaction"),
     path("restore/", GetTransaction.as_view(), name="transaction")
 ]

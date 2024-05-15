@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views import View
-from .models import AppUser, IconPack, IconPackImage, Transaction, Wallpaper, Preference, Color, Style
+from .models import AppUser, IconPack, IconPackImage, Transaction, Wallpaper, Preference, Color, Style, WallpaperTransaction
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import random
@@ -288,6 +288,39 @@ class TransactionSchema(View):
                 pack = IconPack.objects.get(id=icon_pack)
                 transaction = Transaction.objects.create(
                     user=user, transaction_id=transaction_id, sku=sku, status=status, icon_pack=pack)
+
+            else:
+                transaction = Transaction.objects.create(
+                    user=user, sku=sku, status=status)
+
+            return JsonResponse({'success': True, 'message': 'Transaction created successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class WallpaperTransactionSchema(View):
+    def post(self, request):
+        try:
+            token = request.POST.get('token')
+            transaction_id = request.POST.get('transaction_id')
+            sku = request.POST.get('sku')
+            status = request.POST.get('status')
+            wallpaper = int(request.POST.get('wallpaper'))
+            if token is None:
+                return JsonResponse({'success': False, 'error': 'Token is required'})
+
+            if verify_jwt(token)[0] is False:
+                return JsonResponse({'success': False, 'error': 'Invalid token'})
+
+            email = verify_jwt(token)[1]
+
+            user = AppUser.objects.get(email=email)
+
+            if transaction_id != None:
+                _wallpaper = Wallpaper.objects.get(id=wallpaper)
+                transaction = WallpaperTransaction.objects.create(
+                    user=user, transaction_id=transaction_id, sku=sku, status=status, wallpaper=_wallpaper)
 
             else:
                 transaction = Transaction.objects.create(

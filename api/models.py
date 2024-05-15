@@ -6,7 +6,7 @@ import uuid
 
 def get_filename(filename):
     # Generate a unique filename using a UUID
-    extension = filename.split('.')[-1]
+    extension = filename.split(".")[-1]
     _filename = f"{uuid.uuid4()}.{extension}"
     return _filename
 
@@ -35,8 +35,10 @@ class IconPack(models.Model):
     active = models.BooleanField(default=False)
     name = models.CharField(max_length=100)
     preview = models.ImageField(upload_to=generate_filenameIconPreview)
-    icon_pack = models.FileField(upload_to=generate_iconpack_image_filename,
-                                 validators=[FileExtensionValidator(allowed_extensions=["zip"])])
+    icon_pack = models.FileField(
+        upload_to=generate_iconpack_image_filename,
+        validators=[FileExtensionValidator(allowed_extensions=["zip"])],
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -95,19 +97,31 @@ class Color(models.Model):
 
 
 class Preference(models.Model):
-    image = models.ImageField(upload_to=generate_filename,)
-    color = models.ForeignKey(
-        Color, on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField(
+        upload_to=generate_filename,
+    )
+    color = models.ForeignKey(Color, on_delete=models.CASCADE, null=True, blank=True)
 
     male = models.BooleanField(default=True)
 
     style_1 = models.ForeignKey(
-        Style, on_delete=models.CASCADE, null=True, blank=True, related_name='preference_style_1')
+        Style,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="preference_style_1",
+    )
     style_2 = models.ForeignKey(
-        Style, on_delete=models.CASCADE, null=True, blank=True, related_name='preference_style_2')
+        Style,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="preference_style_2",
+    )
 
     icon_pack = models.ForeignKey(
-        IconPack, on_delete=models.CASCADE, null=True, blank=True)
+        IconPack, on_delete=models.CASCADE, null=True, blank=True
+    )
 
     def __str__(self) -> str:
         return self.image.name
@@ -127,7 +141,21 @@ class Transaction(models.Model):
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     transaction_id = models.CharField(max_length=100, null=True, blank=True)
     sku = models.CharField(max_length=100)
-    icon_pack = models.ForeignKey(IconPack, on_delete=models.CASCADE, null=True, blank=True)
+    icon_pack = models.ForeignKey(
+        IconPack, on_delete=models.CASCADE, null=True, blank=True
+    )
+    status = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class WallpaperTransaction(models.Model):
+
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
+    transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    sku = models.CharField(max_length=100)
+    wallpaper = models.ForeignKey(
+        Wallpaper, on_delete=models.CASCADE, null=True, blank=True
+    )
     status = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
