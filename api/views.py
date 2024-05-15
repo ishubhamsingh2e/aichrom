@@ -357,3 +357,31 @@ class GetTransaction(View):
             return JsonResponse(data, safe=False)
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GetTransactionWallpaper(View):
+    def post(self, request):
+        try:
+            token = request.POST.get('token')
+
+            if token is None:
+                return JsonResponse({'success': False, 'error': 'Token is required'})
+
+            if verify_jwt(token)[0] is False:
+                return JsonResponse({'success': False, 'error': 'Invalid token'})
+
+            email = verify_jwt(token)[1]
+
+            user = AppUser.objects.get(email=email)
+
+            transactions = WallpaperTransaction.objects.filter(
+                user=user, status=True).order_by('-created_at')
+
+            data = {
+                'transactions': TransactionSerializer(transactions, many=True).data
+            }
+
+            return JsonResponse(data, safe=False)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})

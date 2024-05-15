@@ -42,3 +42,15 @@ class TransactionSerializer(serializers.ModelSerializer):
             'user': {'write_only': True},
         }
         ordering = ('-created_at',)
+
+class TransactionWallpaperSerializer(serializers.ModelSerializer):
+    icon_pack = IconPackSerializer()
+
+    class Meta:
+        model = models.WallpaperTransaction
+        fields = '__all__'
+        read_only_fields = ('id', 'created_at')
+        extra_kwargs = {
+            'user': {'write_only': True},
+        }
+        ordering = ('-created_at',)

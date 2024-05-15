@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import GetTransaction, WallpaperListView, IconPackApiView, SendOTP, VerifyOTP, GetPreferenceImage, GetPreferenceSchema, TransactionSchema, WallpaperTransactionSchema
+from .views import GetTransaction, WallpaperListView, IconPackApiView, SendOTP, VerifyOTP, GetPreferenceImage, GetPreferenceSchema, TransactionSchema, WallpaperTransactionSchema, GetTransactionWallpaper
 
 urlpatterns = [
     path('wallpapers/', WallpaperListView.as_view(), name='wallpapers'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path("verify_otp/", VerifyOTP.as_view(), name="verify-otp"),
     path("transaction/", TransactionSchema.as_view(), name="transaction"),
     path("wallpaper_transaction/", WallpaperTransactionSchema.as_view(), name="transaction"),
-    path("restore/", GetTransaction.as_view(), name="transaction")
+    path("restore/", GetTransaction.as_view(), name="transaction"),
+    path("restore_wallpaper/", GetTransactionWallpaper.as_view(), name="transaction")
 ]
