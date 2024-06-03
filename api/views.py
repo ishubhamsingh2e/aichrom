@@ -240,14 +240,20 @@ class GetPreferenceSchema(generics.ListAPIView):
         female_colors = Color.objects.filter(preference__male=False).distinct()
 
         style1_male = Style.objects.filter(
-            preference_style_1__male=True).distinct()
+            preference_style_1__male=True
+        ).distinct().order_by('-created_at')
+
         style2_male = Style.objects.filter(
-            preference_style_2__male=True).distinct()
+            preference_style_2__male=True
+        ).distinct().order_by('-created_at')
 
         style1_female = Style.objects.filter(
-            preference_style_1__male=False).distinct()
+            preference_style_1__male=False
+        ).distinct().order_by('-created_at')
+
         style2_female = Style.objects.filter(
-            preference_style_2__male=False).distinct()
+            preference_style_2__male=False
+        ).distinct().order_by('-created_at')
 
         response_data = {
             "male": {
